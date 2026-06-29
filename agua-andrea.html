@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Agua Andrea" />
+  <meta name="theme-color" content="#0f172a" />
+  <title>Consumo de Agua · Andrea</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      min-height: 100vh;
+      background: #0f172a;
+      color: #f1f5f9;
+      font-family: -apple-system, 'SF Pro Display', 'Inter', system-ui, sans-serif;
+      max-width: 430px;
+      margin: 0 auto;
+      padding-bottom: 48px;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    header {
+      padding: 52px 24px 0;
+      text-align: center;
+    }
+    header h1 {
+      font-size: 20px;
+      font-weight: 700;
+      letter-spacing: -0.3px;
+      color: #f1f5f9;
+    }
+    header .subtitle {
+      font-size: 12px;
+      letter-spacing: 0.08em;
+      color: #475569;
+      margin-top: 4px;
+      text-transform: uppercase;
+    }
+
+    /* Ring */
+    .ring-wrap {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 28px 24px 0;
+    }
+    .ring-container {
+      position: relative;
+      width: 200px;
+      height: 200px;
+    }
+    .ring-container svg {
+      transform: rotate(-90deg);
+    }
+    .ring-inner {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 2px;
+    }
+    .ring-total {
+      font-size: 40px;
+      font-weight: 700;
+      letter-spacing: -1.5px;
+      line-height: 1;
+    }
+    .ring-label {
+      font-size: 12px;
+      color: #64748b;
+    }
+    .ring-goal {
+      font-size: 11px;
+      color: #22c55e;
+      font-weight: 600;
+      margin-top: 2px;
+    }
+    .remaining {
+      margin-top: 12px;
+      font-size: 13px;
+      color: #64748b;
+    }
+    .remaining span {
+      color: #f1f5f9;
+      font-weight: 600;
+    }
+
+    /* Flash */
+    .flash {
+      margin-top: 10px;
+      background: #1e3a5f;
+      border: 1px solid #3b82f6;
+      border-radius: 8px;
+      padding: 6px 20px;
+      font-size: 13px;
+      color: #93c5fd;
+      opacity: 1;
+      transition: opacity 0.4s;
+    }
+    .flash.hide { opacity: 0; }
+
+    /* Section label */
+    .section-label {
+      font-size: 10px;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: #64748b;
+      margin-bottom: 10px;
+    }
+
+    /* Quick buttons */
+    .quick-section { padding: 24px 24px 0; }
+    .quick-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 8px;
+    }
+    .quick-btn {
+      background: #1e293b;
+      border: 1px solid #334155;
+      border-radius: 10px;
+      color: #f1f5f9;
+      font-weight: 700;
+      font-size: 13px;
+      padding: 14px 0;
+      cursor: pointer;
+      transition: background 0.15s, transform 0.1s;
+      -webkit-appearance: none;
+    }
+    .quick-btn:active { background: #2d3f55; transform: scale(0.96); }
+
+    /* Custom input */
+    .custom-section {
+      padding: 14px 24px 0;
+      display: flex;
+      gap: 10px;
+    }
+    input[type="number"] {
+      flex: 1;
+      background: #1e293b;
+      border: 1px solid #334155;
+      border-radius: 10px;
+      color: #f1f5f9;
+      font-size: 16px;
+      padding: 13px 14px;
+      outline: none;
+      -webkit-appearance: none;
+    }
+    input[type="number"]::placeholder { color: #475569; }
+    .add-btn {
+      background: #3b82f6;
+      border: none;
+      border-radius: 10px;
+      color: #fff;
+      font-weight: 700;
+      font-size: 15px;
+      padding: 13px 20px;
+      cursor: pointer;
+      -webkit-appearance: none;
+      transition: background 0.15s, transform 0.1s;
+    }
+    .add-btn:active { background: #2563eb; transform: scale(0.97); }
+
+    /* Log */
+    .log-section { padding: 22px 24px 0; }
+    .log-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+    .undo-btn {
+      background: none;
+      border: 1px solid #334155;
+      border-radius: 6px;
+      color: #94a3b8;
+      font-size: 11px;
+      padding: 4px 10px;
+      cursor: pointer;
+      -webkit-appearance: none;
+    }
+    .undo-btn:active { background: #1e293b; }
+    .log-list { display: flex; flex-direction: column; gap: 6px; }
+    .log-item {
+      background: #1e293b;
+      border-radius: 8px;
+      padding: 9px 14px;
+      display: flex;
+      justify-content: space-between;
+      font-size: 14px;
+    }
+    .log-time { color: #64748b; }
+    .log-ml { font-weight: 600; }
+    .log-more { font-size: 12px; color: #475569; text-align: center; margin-top: 4px; }
+
+    /* History */
+    .history-section { padding: 24px 24px 0; }
+    .history-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: 10px;
+    }
+    .avg-label { font-size: 12px; color: #475569; }
+    .history-list { display: flex; flex-direction: column; gap: 6px; }
+    .history-item {
+      background: #1e293b;
+      border-radius: 10px;
+      padding: 10px 14px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .hist-date { width: 62px; font-size: 12px; color: #64748b; flex-shrink: 0; }
+    .hist-bar-wrap {
+      flex: 1;
+      background: #0f172a;
+      border-radius: 4px;
+      height: 6px;
+      overflow: hidden;
+    }
+    .hist-bar {
+      height: 100%;
+      border-radius: 4px;
+      transition: width 0.4s;
+    }
+    .hist-val { width: 56px; text-align: right; font-size: 13px; font-weight: 600; flex-shrink: 0; }
+
+    /* Install banner */
+    .install-banner {
+      margin: 22px 24px 0;
+      background: #1e293b;
+      border: 1px solid #334155;
+      border-radius: 12px;
+      padding: 14px 16px;
+      font-size: 12px;
+      color: #94a3b8;
+      line-height: 1.6;
+      text-align: center;
+    }
+    .install-banner strong { color: #f1f5f9; }
+    .install-banner .close-banner {
+      display: block;
+      margin-top: 8px;
+      color: #3b82f6;
+      cursor: pointer;
+      font-size: 12px;
+      background: none;
+      border: none;
+      -webkit-appearance: none;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>Consumo de Agua</h1>
+  <div class="subtitle" id="today-date"></div>
+</header>
+
+<!-- Ring -->
+<div class="ring-wrap">
+  <div class="ring-container">
+    <svg viewBox="0 0 200 200" width="200" height="200">
+      <circle cx="100" cy="100" r="82" fill="none" stroke="#1e293b" stroke-width="18"/>
+      <circle id="ring-progress" cx="100" cy="100" r="82" fill="none"
+        stroke="#94a3b8" stroke-width="18"
+        stroke-dasharray="515.2"
+        stroke-dashoffset="515.2"
+        stroke-linecap="round"
+        style="transition: stroke-dashoffset 0.5s ease, stroke 0.4s ease"/>
+    </svg>
+    <div class="ring-inner">
+      <div class="ring-total" id="ring-total">0.000</div>
+      <div class="ring-label">litros hoy</div>
+      <div class="ring-goal" id="ring-goal" style="display:none">✓ Meta alcanzada</div>
+    </div>
+  </div>
+  <div class="remaining" id="remaining">Faltan <span>3000 ml</span> para los 3 L</div>
+  <div class="flash hide" id="flash"></div>
+</div>
+
+<!-- Quick add -->
+<div class="quick-section">
+  <div class="section-label">Registro rápido</div>
+  <div class="quick-grid" id="quick-grid"></div>
+</div>
+
+<!-- Custom input -->
+<div class="custom-section">
+  <input type="number" id="custom-input" placeholder="Cantidad en ml" min="1" max="5000" inputmode="numeric"/>
+  <button class="add-btn" onclick="addCustom()">+ Agregar</button>
+</div>
+
+<!-- Today log -->
+<div class="log-section" id="log-section" style="display:none">
+  <div class="log-header">
+    <div class="section-label">Registros de hoy</div>
+    <button class="undo-btn" onclick="undoLast()">↩ Deshacer último</button>
+  </div>
+  <div class="log-list" id="log-list"></div>
+</div>
+
+<!-- History -->
+<div class="history-section" id="history-section" style="display:none">
+  <div class="history-header">
+    <div class="section-label">Historial</div>
+    <div class="avg-label" id="avg-label"></div>
+  </div>
+  <div class="history-list" id="history-list"></div>
+</div>
+
+<!-- Install hint (iOS) -->
+<div class="install-banner" id="install-banner">
+  <strong>Instalar en pantalla de inicio</strong><br>
+  Toca <strong>⎙ Compartir</strong> en Safari y luego<br><strong>"Agregar a pantalla de inicio"</strong>
+  <button class="close-banner" onclick="closeBanner()">Entendido, no mostrar de nuevo</button>
+</div>
+
+<script>
+  const GOAL = 3000;
+  const QUICK = [150, 200, 250, 350, 500];
+  const CIRCUMFERENCE = 2 * Math.PI * 82;
+
+  function todayKey() {
+    return new Date().toISOString().slice(0, 10);
+  }
+
+  function loadData() {
+    try { return JSON.parse(localStorage.getItem('agua_andrea') || '{}'); }
+    catch { return {}; }
+  }
+
+  function saveData(d) {
+    localStorage.setItem('agua_andrea', JSON.stringify(d));
+  }
+
+  function formatDate(k) {
+    const [y, m, d] = k.split('-');
+    return `${d}/${m}/${y}`;
+  }
+
+  function progressColor(pct) {
+    if (pct >= 100) return '#22c55e';
+    if (pct >= 60)  return '#3b82f6';
+    if (pct >= 30)  return '#f59e0b';
+    return '#94a3b8';
+  }
+
+  function render() {
+    const data = loadData();
+    const today = todayKey();
+    const todayTotal = data[today]?.total || 0;
+    const todayLog   = data[today]?.log   || [];
+    const pct = Math.min((todayTotal / GOAL) * 100, 100);
+    const remaining = Math.max(GOAL - todayTotal, 0);
+    const col = progressColor(pct);
+
+    // Date
+    document.getElementById('today-date').textContent = formatDate(today);
+
+    // Ring
+    const offset = CIRCUMFERENCE * (1 - pct / 100);
+    const ring = document.getElementById('ring-progress');
+    ring.style.strokeDashoffset = offset;
+    ring.setAttribute('stroke', col);
+    document.getElementById('ring-total').textContent = (todayTotal / 1000).toFixed(3);
+    document.getElementById('ring-goal').style.display = pct >= 100 ? 'block' : 'none';
+
+    // Remaining
+    const remEl = document.getElementById('remaining');
+    if (remaining > 0) {
+      remEl.innerHTML = `Faltan <span>${remaining} ml</span> para los 3 L`;
+      remEl.style.display = '';
+    } else {
+      remEl.style.display = 'none';
+    }
+
+    // Log
+    const logSection = document.getElementById('log-section');
+    const logList = document.getElementById('log-list');
+    if (todayLog.length > 0) {
+      logSection.style.display = '';
+      const shown = todayLog.slice(0, 6);
+      logList.innerHTML = shown.map(e =>
+        `<div class="log-item"><span class="log-time">${e.time}</span><span class="log-ml">${e.ml} ml</span></div>`
+      ).join('') + (todayLog.length > 6 ? `<div class="log-more">+${todayLog.length - 6} registros anteriores</div>` : '');
+    } else {
+      logSection.style.display = 'none';
+    }
+
+    // History
+    const history = Object.entries(data)
+      .filter(([k]) => k !== today)
+      .sort((a, b) => b[0].localeCompare(a[0]))
+      .slice(0, 7);
+
+    const histSection = document.getElementById('history-section');
+    const histList = document.getElementById('history-list');
+    const avgLabel = document.getElementById('avg-label');
+
+    if (history.length > 0) {
+      histSection.style.display = '';
+      const avg = Math.round(history.reduce((s, [, v]) => s + v.total, 0) / history.length);
+      avgLabel.textContent = `Promedio ${avg} ml`;
+      histList.innerHTML = history.map(([k, v]) => {
+        const p = Math.min((v.total / GOAL) * 100, 100);
+        const c = progressColor(p);
+        return `<div class="history-item">
+          <div class="hist-date">${formatDate(k)}</div>
+          <div class="hist-bar-wrap"><div class="hist-bar" style="width:${p}%;background:${c}"></div></div>
+          <div class="hist-val" style="color:${c}">${(v.total/1000).toFixed(2)} L</div>
+        </div>`;
+      }).join('');
+    } else {
+      histSection.style.display = 'none';
+    }
+  }
+
+  function addWater(ml) {
+    const data = loadData();
+    const today = todayKey();
+    if (!data[today]) data[today] = { total: 0, log: [] };
+    data[today].total += ml;
+    const time = new Date().toLocaleTimeString('es-CL', { hour: '2-digit', minute: '2-digit' });
+    data[today].log.unshift({ ml, time });
+    saveData(data);
+    render();
+    showFlash(`+${ml} ml registrado`);
+  }
+
+  function addCustom() {
+    const input = document.getElementById('custom-input');
+    const val = parseInt(input.value, 10);
+    if (!val || val <= 0 || val > 5000) { input.focus(); return; }
+    addWater(val);
+    input.value = '';
+  }
+
+  function undoLast() {
+    const data = loadData();
+    const today = todayKey();
+    if (!data[today]?.log?.length) return;
+    const [last, ...rest] = data[today].log;
+    data[today].log = rest;
+    data[today].total = Math.max(data[today].total - last.ml, 0);
+    saveData(data);
+    render();
+  }
+
+  function showFlash(msg) {
+    const el = document.getElementById('flash');
+    el.textContent = msg;
+    el.classList.remove('hide');
+    clearTimeout(window._flashTimer);
+    window._flashTimer = setTimeout(() => el.classList.add('hide'), 1800);
+  }
+
+  function closeBanner() {
+    localStorage.setItem('banner_dismissed', '1');
+    document.getElementById('install-banner').style.display = 'none';
+  }
+
+  // Quick buttons
+  const grid = document.getElementById('quick-grid');
+  QUICK.forEach(ml => {
+    const btn = document.createElement('button');
+    btn.className = 'quick-btn';
+    btn.textContent = ml + ' ml';
+    btn.onclick = () => addWater(ml);
+    grid.appendChild(btn);
+  });
+
+  // Enter on custom input
+  document.getElementById('custom-input').addEventListener('keydown', e => {
+    if (e.key === 'Enter') addCustom();
+  });
+
+  // Banner
+  if (localStorage.getItem('banner_dismissed')) {
+    document.getElementById('install-banner').style.display = 'none';
+  }
+
+  render();
+</script>
+</body>
+</html>
